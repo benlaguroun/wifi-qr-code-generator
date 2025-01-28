@@ -1,13 +1,29 @@
 import React, { useState } from "react";
+import QRCode from "qrcode";
 import "./QRCodeGenerator.css";
 
 const QRCodeGenerator = () => {
   const [ssid, setSsid] = useState("");
   const [password, setPassword] = useState("");
   const [encryption, setEncryption] = useState("WPA");
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
   const generateQRCode = async () => {
-    console.log("Generate QR Code clicked");
+    if (!ssid) {
+      alert("SSID is required to generate a QR code.");
+      return;
+    }
+
+    // Construct the Wi-Fi QR code string
+    const wifiString = `WIFI:T:${encryption};S:${ssid};P:${password};H:;`;
+
+    try {
+      // Generate the QR code data URL
+      const dataUrl = await QRCode.toDataURL(wifiString);
+      setQrCodeDataUrl(dataUrl);
+    } catch (error) {
+      console.error("Error generating QR Code: ", error);
+    }
   };
 
   return (
@@ -41,6 +57,14 @@ const QRCodeGenerator = () => {
           Generate QR Code
         </button>
       </div>
+
+      {/* Display the generated QR Code */}
+      {qrCodeDataUrl && (
+        <div className="qr-code-display">
+          <h2>Your Wi-Fi QR Code:</h2>
+          <img src={qrCodeDataUrl} alt="Generated QR Code" />
+        </div>
+      )}
     </div>
   );
 };
