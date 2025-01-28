@@ -8,18 +8,23 @@ const QRCodeGenerator = () => {
   const [encryption, setEncryption] = useState("WPA");
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState("");
 
+  // Function to generate QR code
   const generateQRCode = async () => {
-    if (!ssid) {
+    if (!ssid.trim()) {
       alert("SSID is required to generate a QR code.");
       return;
     }
 
-    // Construct the Wi-Fi QR code string
+    if (encryption !== "" && password.length < 8) {
+      alert("Password must be at least 8 characters for secure encryption.");
+      return;
+    }
+
+    // Wi-Fi QR Code String
     const wifiString = `WIFI:T:${encryption};S:${ssid};P:${password};H:;`;
 
     try {
-      // Generate the QR code data URL
-      const dataUrl = await QRCode.toDataURL(wifiString);
+      const dataUrl = await QRCode.toDataURL(wifiString); // Generate QR Code
       setQrCodeDataUrl(dataUrl);
     } catch (error) {
       console.error("Error generating QR Code: ", error);
@@ -63,6 +68,13 @@ const QRCodeGenerator = () => {
         <div className="qr-code-display">
           <h2>Your Wi-Fi QR Code:</h2>
           <img src={qrCodeDataUrl} alt="Generated QR Code" />
+          <a
+            href={qrCodeDataUrl}
+            download="wifi-qr-code.png"
+            className="download-btn"
+          >
+            Download QR Code
+          </a>
         </div>
       )}
     </div>
